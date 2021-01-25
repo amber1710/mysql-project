@@ -1,104 +1,92 @@
-from tkinter import messagebox
-from datetime import datetime
-import mysql.connector
+
 from tkinter import *
+import mysql.connector
 import tkinter as tk
+from tkinter import messagebox
+import datetime
 
-reg=tk.Tk()
-reg.title('Life Choices Online')
-reg.geometry('600x700')
-reg.config(background="light blue")
+root = tk.Tk()
 
-
-db = mysql.connector.connect(user='lifechoices',password='@Lifechoices1234',host='127.0.0.1',database='lifechoicesonline',auth_plugin='mysql_native_password')
-
-cursor = db.cursor()
-
-def submit():
-    reg_info=(entry_2.get(),entry_6.get(),entry_5.get(),entry_4.get() )
-    wap="INSERT INTO register(username , full_name , mobile number , password) VALUES(%s , %s ,%s ,%s)"
-    cursor.execute(wap,reg_info)
-    db.commit()
-    result = cursor
-
-    if result:
-        messagebox.showinfo("info","You registered successfully!")
-
-    else:
-        failed()
-
-
-def failed():
-    messagebox.showinfo("Error","PLease try again")
+root.title("REGISTRATION")
+root.geometry("700x780")
+root.configure(background="light green")
 
 
 
-def logged():
+mydb= mysql.connector.connect(user="lifechoices", password="@Lifechoices1234", database="lifechoicesonline", host="127.0.0.1", auth_plugin="mysql_native_password")
+#connect database
+mycursor=mydb.cursor()
 
-    d=datetime.now()
-    t=d.strftime("%H:%M")
-    dt=d.strftime("%d/%m/%y")
-    messagebox.showinfo("info","Login Successfully")
-
-    logout = Tk()
-    def out():
-        d2=datetime.now()
-        t2=d2.strftime("%H:%M")
-        u=entry_2.get()
-        f=entry_6.get()
-        p=entry_5.get()
-
-        inU = u,f,t,t2,p,dt
-
-        uCon2="INSERT INTO register(username,full_name,mobile number,time,timeout,date) VALUES (%s , %s , %s , %s , %s , %s)"
-
-        cursor.execute(uCon2,inU)
-        db.commit()
-        messagebox.showinfo()
-
-    butOut=Button(logout,text="LogOut",command=out)
-    butOut.pack()
+x = datetime.datetime.now()
 
 
+def insert():
 
+    fullname= fullname1.get()
+    username1= username.get()
+    password1= password.get()
+    status1= tkvar.get()
+    mobile1 =mobile.get()
 
+    sql = "INSERT INTO users (full_name, user_name, password, mobile_number, status, date_joined) VALUES (%s, %s, %s, %s,%s,%s)"
+    val = (fullname, username1,password1,mobile1,str(status1),x)
 
-label_6=Label(reg,text="Fullname",width=20,bg="yellow",font=("bold",10))
-label_6.place(x=70,y=220)
-entry_6=Entry(reg)
-entry_6.place(x=240,y=220)
+    mycursor.execute(sql, val)
 
+    mydb.commit()
 
-#label  and entry for Mobile number
-label_6=Label(reg,text="Mobile Number:",width=20,bg="yellow",font=("bold",10))
-label_6.place(x=70,y=280)
-entry_5=Entry(reg)
-entry_5.place(x=240,y=280)
-
-#label and entry for Username
-label_2 = Label(reg, text="Username",width=20,bg="yellow",font=("bold", 10))
-label_2.place(x=68,y=190)
-entry_2 = Entry(reg)
-entry_2.place(x=240,y=190)
-
-#label and entry for Password
-label_3 = Label(reg , text="Password" ,width=20 ,bg="yellow", font=("bold",10))
-label_3.place(x=70,y=330)
-entry_4=Entry(reg)
-entry_4.place(x=240,y=330)
+    print(mycursor.rowcount, "record inserted.")
+    messagebox.showinfo("Registration Complete","Please log in.")
+    root.withdraw()
+    import main
 
 
 
+lbluser=tk.Label(root, text="Welcome to LIfe Choices Online", bg="beige", font="22")
+lbluser.pack(pady=20)
 
+lbluser=tk.Label(root, text="Please complete the form below.", bg="white", font="20")
+lbluser.pack()
 
-label_0 = Label(reg, text="Register ",width=20,font=("bold", 20),)
-label_0.place(x=90,y=53)
+lbluser=tk.Label(root, text="Enter Fullname",bg='white')
+lbluser.pack(pady=20)
 
-#button for submit
-Button(reg, text='Submit',width=20,bg='brown',fg='white',command=submit).place(x=180,y=450)
+fullname1= tk.Entry(root, width=30)
+fullname1.pack(pady=20)
 
-Button(reg,text='<< Back',width=20,bg='white').place(x=40,y=600)
+lblpasswd=tk.Label(root,text="Enter Username",bg='white')
+lblpasswd.pack(pady=20)
 
-Button(reg,text='Exit',width=20,bg='grey',command=exit).place(x=220,y=600)
+username = tk.Entry(root,width=30)
+username.pack(pady=20)
 
-reg.mainloop()
+lblpasswd=tk.Label(root,text="Enter Password",bg='white')
+lblpasswd.pack(pady=20)
+
+password = tk.Entry(root,width=30)
+password.pack(pady=20)
+
+lblmobile=tk.Label(root,text="Mobile Number",bg='white')
+lblmobile.pack(pady=20)
+
+mobile = tk.Entry(root,width=30)
+mobile.pack(pady=20)
+
+lblstatus =Label(root, text="Registering as a:",bg='white')
+lblstatus.pack(pady=20)
+
+#Dropdown
+# Create a Tkinter variable
+tkvar = StringVar(root)
+
+# Dictionary with options
+choices = {'Visitor','Student','Employee'}
+tkvar.set('Student') # set the default option
+
+popupMenu = OptionMenu(root, tkvar, *choices)
+popupMenu.place(x=240, y=640,width=200)
+
+logbuttn=tk.Button(root,text="Submit", command=insert,bg='blue',fg='white')
+logbuttn.place(x=230, y=700)
+
+root.mainloop()

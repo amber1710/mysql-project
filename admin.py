@@ -1,49 +1,77 @@
-import mysql.connector
 from tkinter import *
-from tkinter import messagebox
+import mysql.connector
 import tkinter as tk
+from tkinter import messagebox, simpledialog
+from datetime import datetime
 
-mydb = mysql.connector.connect(user='lifechoices',password='@Lifechoices1234', database='lifechoicesonline',
-                             host='127.0.0.1',auth_plugin='mysql_native_password')
+mydb= mysql.connector.connect(user="lifechoices", password="@Lifechoices1234", database="lifechoicesonline", host="127.0.0.1", auth_plugin="mysql_native_password")
+#connect database
 
-mycursor=mydb.cursor()
+cursor = mydb.cursor()
 
-def logs():
+# to login into admin with data from mysql
+def verify():
+    user_verification= username.get()
+    pass_verification = password.get()
+    sql = "select * from admin where username = %s and password = %s"
+    cursor.execute(sql,[(user_verification), (pass_verification)])
+    results = cursor.fetchall()
+    if results:
+        for i in results:
+            logged()
+            break
+    else:
+            failed()
 
+#to display a messagebox
+def failed():
+    messagebox.showerror("Login failed", "Please check your username and password.")
 
-admin=tk.Tk()
-admin.title('Logins')
-admin.geometry('600x400')
-admin.config(background="light blue")
+def logged():
+    x = datetime.now()
+    y = x.strftime("%H:%M")
+    user=simpledialog.askstring("Input", "Please re-enter username ", parent=root)
+    wap = "INSERT INTO login VALUES (%s, curtime(), NULL)"
+    cursor.execute(wap, [user])
+    mydb.commit()
+    messagebox.showinfo("Successful", "You have successfully logged in")
 
+    root.withdraw()
+    import adlog
 
-labeluser=tk.Label(admin,text="Username")
-labeluser.place(x=50,y=20)
+def back():
+    root.destroy()
+    import main
 
+root = tk.Tk()
 
-def logs():
-	admin.withdraw()
-	import recep
+root.title('Login: Admin')
 
+root.geometry("650x650")
+root.configure(background="light blue")
 
-username=tk.Entry(admin,width=45)
-username.place(x=250,y=20,width=100)
+lbluser=tk.Label(root, text="Life Choices Online: Admin Log in", bg="pink")
+lbluser.pack(pady=10)
 
-lbl_pword=tk.Label(admin,text="Password")
-lbl_pword.place(x=50,y=50)
+lbluser=tk.Label(root, text="Enter Username",bg="orange")
+lbluser.pack(pady=20)
 
-password=tk.Entry(admin,width=35 )
-password.config(width=20,show="*")
-password.place(x=250 , y=50 , width=100)
+username= tk.Entry(root, width=30)
+username.pack(pady=20)
 
-loginbtn=tk.Button(admin,text="Login" , command="logs")
-loginbtn.place(x=150,y=135,width=55)
+lblpasswd=tk.Label(root,text="Enter Password",bg="orange")
+lblpasswd.pack(pady=20)
 
+password = tk.Entry(root,width=30)
+password.pack(pady=20)
 
+logbuttn=tk.Button(root,text="Sign In", command=verify)
+logbuttn.pack(pady=20)
 
-admin.mainloop()
+logbuttn=tk.Button(root,text="Back", command=back)
+logbuttn.pack(pady=20)
 
+lbluser=tk.Label(root, text="Admin login details:\n\nusername: admin\n\npassword: 1234")
+lbluser.pack(pady=20)
 
-
-
-
+root.mainloop()
